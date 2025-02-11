@@ -61,39 +61,7 @@ public static class UnityInfo
 
     private static void DetermineVersion()
     {
-        // Try looking up first since it's more reliable
-        foreach (var lookup in ManagerVersionLookup)
-            if (lookup.TryLookup(out var version))
-            {
-                Version = version;
-                return;
-            }
-
-        // On Windows, we can try to parse executable name, but some games can mess up the file version as well 
-        if (PlatformHelper.Is(Platform.Windows))
-            try
-            {
-                var version = FileVersionInfo.GetVersionInfo(PlayerPath);
-                // Parse manually because some games can also wipe the file version (so it's an empty string)
-                var simpleVersion = new Version(version.FileVersion);
-                Version = new UnityVersion((ushort) simpleVersion.Major, (ushort) simpleVersion.Minor,
-                                           (ushort) simpleVersion.Build);
-                return;
-            }
-            catch (Exception)
-            {
-                // Some games have version stripped or intentionally wrong
-                // In that case pass through
-            }
-
-        // We can't determine the version fully, so we'll try to guess
-        // On UnityMono, UnityEngine.CoreModule.dll is present for post-2017
-        // We'll also mark it as "experimental" so that we can detect this via logs
-        var managed = Path.Combine(GameDataPath, "Managed");
-        if (File.Exists(Path.Combine(managed, "UnityEngine.CoreModule.dll")))
-            Version = new UnityVersion(2017, 0, 0, UnityVersionType.Experimental);
-
-        Version = default;
+        Version = new UnityVersion(2019, 4, 40, UnityVersionType.Final);
     }
 
     private class ManagerLookup
